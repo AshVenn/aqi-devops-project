@@ -1,0 +1,44 @@
+# -------------------
+# ENV files
+# -------------------
+.env
+.env.*
+
+# -------------------
+# Node / Frontend
+# -------------------
+frontend/node_modules
+frontend/dist
+frontend/.vite
+frontend/.env
+
+# -------------------
+# Python / Backend
+# -------------------
+backend/__pycache__
+backend/*.pyc
+backend/.env
+backend/.venv
+
+# -------------------
+# Logs
+# -------------------
+*.log
+npm-debug.log
+
+# -------------------
+# OS files
+# -------------------
+.DS_Store
+Thumbs.db
+
+# -------------------
+# IDE
+# -------------------
+.vscode
+.idea
+
+# -------------------
+# Docker
+# -------------------
+*.tar
