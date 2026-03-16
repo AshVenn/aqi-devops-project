@@ -40,11 +40,3 @@ ALLOWED_ORIGIN_REGEX = (
     ).strip()
     or None
 )
-
-API_BEARER_TOKEN = os.getenv("AQI_API_BEARER_TOKEN", "").strip()
-REQUIRE_API_AUTH = os.getenv("AQI_REQUIRE_API_AUTH", "true").strip().lower() in {
-    "1",
-    "true",
-    "yes",
-    "on",
-}

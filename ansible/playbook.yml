@@ -1,0 +1,121 @@
+---
+#############################################################
+# 1️ MASTER NODE SETUP
+#############################################################
+
+- hosts: master
+  become: yes
+  vars:
+    project_dir: /home/ubuntu/aqi
+    namespace: aqi
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - curl
+        state: present
+
+    - name: Install k3s server
+      shell: |
+        curl -sfL https://get.k3s.io | sh -s - --disable traefik --disable metrics-server
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: Wait for k3s server to start
+      shell: k3s kubectl get nodes
+      register: k3s_ready
+      retries: 20
+      delay: 10
+      until: k3s_ready.rc == 0
+
+    - name: Read k3s join token
+      shell: cat /var/lib/rancher/k3s/server/node-token
+      register: node_token
+
+    - name: Save join token
+      set_fact:
+        k3s_token: "{{ node_token.stdout }}"
+
+    - name: Create project directory
+      file:
+        path: "{{ project_dir }}"
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: "0755"
+
+    - name: Copy Kubernetes manifests
+      copy:
+        src: ../k8s/
+        dest: "{{ project_dir }}/k8s/"
+
+    - name: Create Kubernetes namespace
+      shell: k3s kubectl create namespace {{ namespace }} || true
+
+
+#############################################################
+# 2️ WORKER NODE SETUP
+#############################################################
+
+- hosts: worker
+  become: yes
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - curl
+        state: present
+
+    - name: Install k3s agent
+      shell: |
+        curl -sfL https://get.k3s.io | K3S_URL=https://{{ hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0]) }}:6443 K3S_TOKEN={{ hostvars[groups['master'][0]]['k3s_token'] }} sh -
+      args:
+        creates: /usr/local/bin/k3s-agent
+
+
+#############################################################
+# 3️ DEPLOY APPLICATION TO KUBERNETES
+#############################################################
+
+- hosts: master
+  become: yes
+  vars:
+    project_dir: /home/ubuntu/aqi
+    namespace: aqi
+
+  tasks:
+
+    - name: Wait for worker to join cluster
+      shell: k3s kubectl get nodes
+      register: cluster_nodes
+      retries: 20
+      delay: 10
+      until: cluster_nodes.rc == 0 and "Ready" in cluster_nodes.stdout
+
+    - name: Deploy backend
+      shell: k3s kubectl apply -n {{ namespace }} -f {{ project_dir }}/k8s/backend-deployment.yaml
+
+    - name: Deploy backend service
+      shell: k3s kubectl apply -n {{ namespace }} -f {{ project_dir }}/k8s/backend-service.yaml
+
+    - name: Deploy frontend
+      shell: k3s kubectl apply -n {{ namespace }} -f {{ project_dir }}/k8s/frontend-deployment.yaml
+
+    - name: Deploy frontend service
+      shell: k3s kubectl apply -n {{ namespace }} -f {{ project_dir }}/k8s/frontend-service.yaml

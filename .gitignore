@@ -15,10 +15,22 @@ frontend/.env
 # -------------------
 # Python / Backend
 # -------------------
-backend/__pycache__
-backend/*.pyc
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 backend/.env
 backend/.venv
+.venv/
+
+# -------------------
+# Terraform
+# -------------------
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.*
+terraform/*.tfvars
+terraform/*.tfvars.json
 
 # -------------------
 # Logs

@@ -6,14 +6,14 @@ import pandas as pd
 
 import sys
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
+BACKEND_DIR = Path(__file__).resolve().parent
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
 
 from src.aqi import aqi_category, compute_aqi_row, convert_to_standard
 from src.features import add_time_features
 
-from .schemas import PredictRequest
+from schemas import PredictRequest
 
 POLLUTANTS_ALL = ["pm25", "pm10", "no2", "o3", "co", "so2"]
 

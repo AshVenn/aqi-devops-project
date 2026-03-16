@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 
 import joblib
 
-from .config import FEATURE_COLS_PATH, MODEL_META_PATH, MODEL_PATH
+from config import FEATURE_COLS_PATH, MODEL_META_PATH, MODEL_PATH
 
 
 @dataclass(frozen=True)

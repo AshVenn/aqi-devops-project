@@ -12,20 +12,17 @@ pip install -r backend/requirements.txt
 
 The backend pins `scikit-learn==1.6.1` to match the exported model artifacts.
 
-## API auth (Bearer token)
+## Configuration
 
-Create `backend/.env` (auto-loaded on startup):
+Create `backend/.env` if you need to override runtime configuration (auto-loaded on startup):
 
 ```bash
-AQI_API_BEARER_TOKEN=replace-with-a-long-random-token
-AQI_REQUIRE_API_AUTH=true
+AQI_ALLOWED_ORIGINS=http://localhost:5173
 ```
 
 You can start from `backend/.env.example`.
 
 Optional:
-- `AQI_REQUIRE_API_AUTH=true` (default) requires bearer auth on all endpoints.
-- `AQI_REQUIRE_API_AUTH=false` disables auth (local dev only).
 - `AQI_ALLOWED_ORIGINS` accepts comma-separated frontend origins.
 - `AQI_ALLOWED_ORIGIN_REGEX` accepts a regex for dynamic origins (defaults to `*.***.***.****.***.sslip.io`).
 
@@ -63,8 +60,6 @@ Run:
 docker run -d --name aqi-api \
   --restart unless-stopped \
   -p 8000:8000 \
-  -e AQI_API_BEARER_TOKEN=replace-with-a-long-random-token \
-  -e AQI_REQUIRE_API_AUTH=true \
   aqi-api:latest
 ```
 
@@ -72,7 +67,6 @@ docker run -d --name aqi-api \
 
 ```bash
 curl -X POST "http://localhost:8000/predict" \
-  -H "Authorization: Bearer replace-with-a-long-random-token" \
   -H "Content-Type: application/json" \
   -d '{
     "latitude": 37.7749,
@@ -97,14 +91,12 @@ curl -X POST "http://localhost:8000/predict" \
 
 ```js
 const API_BASE_URL = "http://localhost:8000";
-const API_TOKEN = import.meta.env.VITE_AQI_API_BEARER_TOKEN;
 
 async function predictAqi(payload) {
   const response = await fetch(`${API_BASE_URL}/predict`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${API_TOKEN}`,
     },
     body: JSON.stringify(payload),
   });

@@ -1,61 +1,24 @@
 ﻿from __future__ import annotations
 
 from pathlib import Path
-from secrets import compare_digest
 import sys
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
+BACKEND_DIR = Path(__file__).resolve().parent
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
 
-from .config import (
-    ALLOWED_ORIGINS,
-    ALLOWED_ORIGIN_REGEX,
-    API_BEARER_TOKEN,
-    REQUIRE_API_AUTH,
-)
-from .model_loader import get_artifacts
-from .predict import POLLUTANTS_ALL, build_feature_frame, compute_exact_aqi
-from .schemas import InputSummary, ModelInfo, PredictRequest, PredictResponse
+from config import ALLOWED_ORIGINS, ALLOWED_ORIGIN_REGEX
+from model_loader import get_artifacts
+from predict import POLLUTANTS_ALL, build_feature_frame, compute_exact_aqi
+from schemas import InputSummary, ModelInfo, PredictRequest, PredictResponse
 from src.aqi import aqi_category
-
-if REQUIRE_API_AUTH and not API_BEARER_TOKEN:
-    raise RuntimeError(
-        "AQI_REQUIRE_API_AUTH is enabled, but AQI_API_BEARER_TOKEN is not configured."
-    )
-
-bearer_scheme = HTTPBearer(auto_error=False)
-
-
-def verify_api_bearer_token(
-    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
-) -> None:
-    if not REQUIRE_API_AUTH:
-        return
-
-    if credentials is None or credentials.scheme.lower() != "bearer":
-        raise HTTPException(
-            status_code=401,
-            detail="Missing bearer token.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    if not compare_digest(credentials.credentials, API_BEARER_TOKEN):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid bearer token.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
 
 app = FastAPI(
     title="AQI Estimation API",
     version="1.0.0",
-    dependencies=[Depends(verify_api_bearer_token)],
 )
 
 app.add_middleware(

@@ -1,17 +1,6 @@
 // AQI Backend API Client
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
-const API_BEARER_TOKEN = import.meta.env.VITE_AQI_API_BEARER_TOKEN?.trim();
-
-function getAuthHeaders(): HeadersInit {
-  if (!API_BEARER_TOKEN) {
-    throw new Error('Missing VITE_AQI_API_BEARER_TOKEN environment variable');
-  }
-
-  return {
-    Authorization: `Bearer ${API_BEARER_TOKEN}`,
-  };
-}
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '/api';
 
 export interface PredictPayload {
   latitude: number;
@@ -62,7 +51,6 @@ export async function predictAQI(payload: PredictPayload): Promise<PredictRespon
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...getAuthHeaders(),
     },
     body: JSON.stringify(payload),
   });
@@ -89,11 +77,7 @@ export async function predictAQI(payload: PredictPayload): Promise<PredictRespon
 
 // Health check endpoint
 export async function checkHealth(): Promise<HealthResponse> {
-  const response = await fetch(`${BACKEND_URL}/health`, {
-    headers: {
-      ...getAuthHeaders(),
-    },
-  });
+  const response = await fetch(`${BACKEND_URL}/health`);
 
   if (!response.ok) {
     const errorData: ApiError = await response.json().catch(() => ({

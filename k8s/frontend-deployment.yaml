@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aqi-frontend
+  namespace: aqi
+  labels:
+    app: aqi-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aqi-frontend
+  template:
+    metadata:
+      labels:
+        app: aqi-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ashisven/aqi-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
