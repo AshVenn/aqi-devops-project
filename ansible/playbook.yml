@@ -10,22 +10,37 @@
     namespace: aqi
 
   tasks:
+    - name: Create 2GB Swap File (Prevents TLS Handshake Timeouts)
+      shell: |
+        if [ ! -f /swapfile ]; then
+          fallocate -l 2G /swapfile
+          chmod 600 /swapfile
+          mkswap /swapfile
+          swapon /swapfile
+          echo '/swapfile none swap sw 0 0' >> /etc/fstab
+        fi
+      args:
+        executable: /bin/bash
 
     - name: Update apt cache
       apt:
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Install required packages
+    - name: Install Docker and Curl
       apt:
         name:
           - docker.io
           - curl
         state: present
 
-    - name: Install k3s server
+    - name: Install k3s server (Using Docker Runtime)
       shell: |
-        curl -sfL https://get.k3s.io | sh -s - --disable traefik --disable metrics-server
+        curl -sfL https://get.k3s.io | sh -s - \
+        --docker \
+        --disable traefik \
+        --disable metrics-server \
+        --write-kubeconfig-mode 644
       args:
         creates: /usr/local/bin/k3s
 
@@ -69,22 +84,34 @@
   become: yes
 
   tasks:
+    - name: Create 2GB Swap File
+      shell: |
+        if [ ! -f /swapfile ]; then
+          fallocate -l 2G /swapfile
+          chmod 600 /swapfile
+          mkswap /swapfile
+          swapon /swapfile
+          echo '/swapfile none swap sw 0 0' >> /etc/fstab
+        fi
+      args:
+        executable: /bin/bash
 
     - name: Update apt cache
       apt:
         update_cache: yes
-        cache_valid_time: 3600
 
-    - name: Install required packages
+    - name: Install Docker and Curl
       apt:
         name:
           - docker.io
           - curl
         state: present
 
-    - name: Install k3s agent
+    - name: Install k3s agent (Using Docker Runtime)
       shell: |
-        curl -sfL https://get.k3s.io | K3S_URL=https://{{ hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0]) }}:6443 K3S_TOKEN={{ hostvars[groups['master'][0]]['k3s_token'] }} sh -
+        curl -sfL https://get.k3s.io | \
+        K3S_URL=https://{{ hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0]) }}:6443 \
+        K3S_TOKEN={{ hostvars[groups['master'][0]]['k3s_token'] }} sh -s - --docker
       args:
         creates: /usr/local/bin/k3s-agent
 
@@ -100,7 +127,6 @@
     namespace: aqi
 
   tasks:
-
     - name: Wait for worker to join cluster
       shell: k3s kubectl get nodes
       register: cluster_nodes
