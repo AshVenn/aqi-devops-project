@@ -36,7 +36,13 @@ def health():
     artifacts = get_artifacts()
     model_loaded = artifacts.model is not None
     model_name = artifacts.meta.get("best_model_name") if artifacts.meta else None
-    return {"ok": True, "model_loaded": model_loaded, "model_name": model_name}
+    return {
+        "ok": True,
+        "service": "aqi-backend",
+        "version": app.version,
+        "model_loaded": model_loaded,
+        "model_name": model_name,
+    }
 
 
 @app.post("/predict", response_model=PredictResponse)
