@@ -33,21 +33,38 @@ app.add_middleware(
 
 @app.get("/health")
 def health():
-    artifacts = get_artifacts()
-    model_loaded = artifacts.model is not None
+    try:
+        artifacts = get_artifacts()
+    except Exception as exc:
+        return {
+            "ok": True,
+            "service": "aqi-backend",
+            "version": app.version,
+            "model_loaded": False,
+            "model_name": None,
+            "model_error": str(exc),
+        }
+
     model_name = artifacts.meta.get("best_model_name") if artifacts.meta else None
     return {
         "ok": True,
         "service": "aqi-backend",
         "version": app.version,
-        "model_loaded": model_loaded,
+        "model_loaded": True,
         "model_name": model_name,
     }
 
 
 @app.post("/predict", response_model=PredictResponse)
 def predict(request: PredictRequest):
-    artifacts = get_artifacts()
+    try:
+        artifacts = get_artifacts()
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Model artifacts are unavailable: {exc}",
+        ) from exc
+
     feature_cols = artifacts.feature_cols or artifacts.meta.get("features", [])
     if not feature_cols:
         raise HTTPException(status_code=500, detail="Feature columns not available.")

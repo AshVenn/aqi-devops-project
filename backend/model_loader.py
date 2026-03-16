@@ -35,12 +35,19 @@ def _load_feature_cols(path: Path) -> List[str]:
     return list(data)
 
 
+def _load_model(path: Path) -> Any:
+    if not path.exists():
+        raise FileNotFoundError(f"Model file not found: {path}")
+
+    try:
+        return joblib.load(path)
+    except Exception as exc:
+        raise RuntimeError(f"Failed to load model from {path}: {exc}") from exc
+
+
 @lru_cache(maxsize=1)
 def get_artifacts() -> ModelArtifacts:
-    model = None
-    if MODEL_PATH.exists():
-        model = joblib.load(MODEL_PATH)
-
+    model = _load_model(MODEL_PATH)
     feature_cols = _load_feature_cols(FEATURE_COLS_PATH)
     meta = _load_json(MODEL_META_PATH, default={})
 
