@@ -1,6 +1,6 @@
 from pytest import approx
 
-from backend.src.aqi import aqi_category, compute_aqi_row, convert_to_standard
+from src.aqi import aqi_category, compute_aqi_row, convert_to_standard
 
 
 def test_convert_to_standard_converts_o3_ugm3_to_ppm():
