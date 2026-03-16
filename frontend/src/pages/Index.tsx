@@ -48,10 +48,10 @@ const Index = () => {
       <div ref={calculatorRef} className="scroll-mt-20">
         <div className="bg-secondary/30 py-8 text-center border-y border-border">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Interactive Forecast
+            Interactive AQI Forecast
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">AQI Calculator</h2>
-          <p className="text-muted-foreground mt-2">Click the map to select a location and predict air quality in seconds</p>
+          <p className="text-muted-foreground mt-2">Click the map to select a location and get an AQI prediction in seconds</p>
         </div>
         <Calculator />
       </div>
