@@ -48,7 +48,7 @@ const Index = () => {
       <div ref={calculatorRef} className="scroll-mt-20">
         <div className="bg-secondary/30 py-8 text-center border-y border-border">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-            Interactive AQI Forecast
+            Interactive AQI Insights
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">AQI Prediction Calculator</h2>
           <p className="text-muted-foreground mt-2">Click the map to select a location and get an AQI prediction in seconds</p>

@@ -18,7 +18,7 @@ from src.aqi import aqi_category
 
 app = FastAPI(
     title="AQI Estimation API",
-    version="1.0.0",
+    version="1.0.1",
 )
 
 app.add_middleware(
