@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BACKEND_IMAGE: ${{ secrets.DOCKER_USER }}/aqi-backend:latest
-      KUBECONFIG: ${{ runner.temp }}/kubeconfig
+      KUBECONFIG: /tmp/kubeconfig
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FRONTEND_IMAGE: ${{ secrets.DOCKER_USER }}/aqi-frontend:latest
-      KUBECONFIG: ${{ runner.temp }}/kubeconfig
+      KUBECONFIG: /tmp/kubeconfig
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
