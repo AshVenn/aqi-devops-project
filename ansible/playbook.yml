@@ -117,7 +117,7 @@
 
 
 #############################################################
-# 3️ DEPLOY APPLICATION TO KUBERNETES
+# 3️ DEPLOY APPLICATION TO KUBERNETES ()
 #############################################################
 
 - hosts: master
