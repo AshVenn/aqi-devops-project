@@ -50,7 +50,7 @@ const Index = () => {
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             Interactive AQI Insights
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground">AQI Prediction Calculator</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground">AQI Prediction App</h2>
           <p className="text-muted-foreground mt-2">Click the map to select a location and get an AQI prediction in seconds</p>
         </div>
         <Calculator />
